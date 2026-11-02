@@ -1,6 +1,6 @@
 # TecCart - tienda en React
 
-**URL publica (Vercel):** _pendiente: pegar aqui la direccion `.vercel.app` cuando se despliegue la tienda_
+**URL publica (Vercel):** https://react-g17-psi.vercel.app/
 
 Proyecto del bloque React del Bootcamp Frontend & React (Tecsup): React 19 + TypeScript + Vite + Tailwind 4,
 con `react-router-dom`, Context, hooks propios, sesion con JWT y arquitectura en capas.
