@@ -24,7 +24,7 @@ export default function Header ( {nombre , eslogan = "Tecnología para todos"} :
                     <NavLink to="/checkout" className={claseEnlace}>Checkout</NavLink>
                     {/* "Mis pedidos" solo se ofrece con sesión: la ruta además está protegida en App */}
                     {usuario && <NavLink to="/pedidos" className={claseEnlace}>Mis pedidos</NavLink>}
-                    <NavLink to="/practica" className={claseEnlace}>Práctica</NavLink>
+                    {/* /practica (tarea de la clase 3) sigue existiendo como ruta, pero ya no se ofrece en el menú */}
                 </nav>
             </div>
             <div className="text-right">
