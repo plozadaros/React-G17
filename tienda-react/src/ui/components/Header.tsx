@@ -1,12 +1,14 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import formatearPrecio from "../formato";
 import { useCart } from "../../aplicacion/useCart";
+import { useSesion } from "../../aplicacion/useSesion";
 interface Props {
     nombre : string;
     eslogan?: string;
 }
 export default function Header ( {nombre , eslogan = "Tecnología para todos"} : Props) {
     const {unidades, total} = useCart();
+    const  {usuario, salir} = useSesion();
     return(
         <header className="mb-6 flex items-center justify-between">
             <div>
@@ -19,6 +21,15 @@ export default function Header ( {nombre , eslogan = "Tecnología para todos"} :
                 </nav>
             </div>
             <p>{unidades} productos - {formatearPrecio(total)}</p>
+            {
+                usuario ? (
+                    <p className="text-sm">Hola, {usuario.nombre}
+                        <button className="ml-2 underline" onClick={salir}>Salir</button>
+                    </p>
+                ) : (
+                    <Link to="/login" className="text-sm underline">Inicie Sesion</Link>
+                )
+            }
         </header>
     )
 }

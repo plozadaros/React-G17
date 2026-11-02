@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { Producto } from "../../dominio/tipos";
 import EtiquetaStock from "./EtiquetaStock";
 import Precio from "./Precio";
@@ -8,7 +8,7 @@ interface Props {
   onAgregar : (producto : Producto) => void;
 }
 
-export default function ProductCard({ producto, onAgregar } : Props) {
+function ProductCard({ producto, onAgregar } : Props) {
   const agotado = producto.stock === 0;
   // El favorito vive DENTRO de la tarjeta: cada instancia de ProductCard tiene su propio estado
   // (experimento 3 de la clase 3), así que marcar una no marca las demás.
@@ -43,3 +43,5 @@ export default function ProductCard({ producto, onAgregar } : Props) {
     </article>
   )
 }
+
+export default memo(ProductCard);

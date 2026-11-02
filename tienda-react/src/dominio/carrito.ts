@@ -23,7 +23,28 @@ export function quitarItem (items : ItemCarrito[], id : number) : ItemCarrito[] 
 
 // Pura e inmutable: devuelve un array nuevo y no toca el que recibe.
 // Con cantidad 0 (o menos) la fila desaparece, igual que quitarItem.
-export function cambiarCantidad (items : ItemCarrito[], id : number, cantidad : number) : ItemCarrito[] {
-    if (cantidad <= 0) return quitarItem(items, id);
-    return items.map((i) => (i.id === id ? {...i, cantidad} : i));
+export function cambiarCantidadItem (items : ItemCarrito[], id: number, cantidad: number) : ItemCarrito[] {
+    if(cantidad < 1) return quitarItem(items, id);
+    return items.map((item) => (
+        item.id === id ? {...item, cantidad} : item
+    ))
+}
+
+export type AccionCarrito =
+    | {tipo : 'agregar'; producto: Producto}
+    | {tipo : 'quitar'; id: number}
+    | {tipo : 'cambiarCantidad'; id : number ; cantidad : number}
+    | {tipo : 'vaciar'}
+
+export function reducirCarrito (items : ItemCarrito[], accion: AccionCarrito) : ItemCarrito [] {
+    switch(accion.tipo) {
+        case 'agregar' :
+            return agregarItem( accion.producto ,items);
+        case 'quitar' :
+            return quitarItem(items, accion.id);
+        case 'cambiarCantidad' :
+            return cambiarCantidadItem(items, accion.id, accion.cantidad);
+        case 'vaciar' :
+            return [];
+    }
 }

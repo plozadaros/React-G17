@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NOMBRE_TIENDA, type EstadoCarga, type Producto } from "../../dominio/tipos";
 import Beneficio from "../components/Beneficio";
 import SkeletonCard from "../components/SkeletonCard";
@@ -51,16 +51,15 @@ interface Props {
 */
 export function Home ( {esRespaldo, OnReintentar, productos, estado} : Props) {
     const {agregar} = useCart();
-
     const categorias = ['todas', ...new Set(productos.map(p => p.categoria))];
     const [categoriaActiva, setCategoriaActiva] = useState<string>('todas');
     const [termino, setTermino] = useState('');
     const busqueda = termino.trim().toLowerCase();  
-    const visibles = productos.filter( (p) => (
+    const visibles = useMemo( () => productos.filter( (p) => (
         (categoriaActiva === 'todas' || p.categoria === categoriaActiva) && 
         (busqueda === '' || p.nombre.toLowerCase().includes(busqueda) || 
         p.marca.toLowerCase().includes(busqueda))
-    ));
+    )), [productos, categoriaActiva, busqueda]);
     useEffect(() => {
         document.title = `${NOMBRE_TIENDA} - ${visibles.length} resultados`;
     },[visibles.length]);
