@@ -8,7 +8,6 @@ export interface Producto {
     categoria : string;
     descripcion? : string;
 }
-export const NOMBRE_TIENDA = 'TecCart';
 export type Categoria = 'todas'| 'laptops'|'audio'|'relojes'|'computadoras';
 export type EstadoCarga = 'cargando' | 'listo' | 'error';
 

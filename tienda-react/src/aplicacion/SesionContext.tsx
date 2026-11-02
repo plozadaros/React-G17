@@ -5,7 +5,9 @@ import { borrarSesion, guardarSesion, leerSesion } from "../infraestructura/alma
 
 interface ValorSesion {
     usuario : Usuario | null;
-    entrar: (usuario : string, clave :string) => Promise<void>;
+    // `recordar` viene de la casilla "Recordarme" del login: solo se reenvía a almacen.ts, que es
+    // quien decide en qué almacén vive la sesión. Aquí no se sabe si es localStorage o sessionStorage.
+    entrar: (usuario : string, clave :string, recordar? : boolean) => Promise<void>;
     salir : () => void;
 }
 
@@ -13,9 +15,9 @@ export const SesionContext = createContext<ValorSesion | null >(null);
 
 export function SesionProvider({children} : {children : ReactNode}) {
     const [usuario, setUsuario] = useState<Usuario | null>(leerSesion);
-    async function entrar(usuario: string, clave:string){
+    async function entrar(usuario: string, clave:string, recordar = true){
         const conectado = await iniciarSesion(usuario, clave);
-        guardarSesion(conectado);
+        guardarSesion(conectado, recordar);
         setUsuario(conectado);
     }
     function salir() {
@@ -27,7 +29,7 @@ export function SesionProvider({children} : {children : ReactNode}) {
 
         // 9:11 + 30 min = 9:41 - 9:30. 11 minutos.
         const restante = usuario.expiraEn - Date.now();
-        if(restante <= 0 ) { 
+        if(restante <= 0 ) {
             borrarSesion();
             setUsuario(null);
             return;
@@ -55,5 +57,5 @@ export function SesionProvider({children} : {children : ReactNode}) {
         <SesionContext.Provider value={{usuario, entrar, salir}}>
             {children}
         </SesionContext.Provider>
-    ) 
+    )
 }

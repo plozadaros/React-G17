@@ -1,32 +1,61 @@
-# React + TypeScript + Vite
+# TecCart - tienda en React
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**URL publica (Vercel):** _pendiente: pegar aqui la direccion `.vercel.app` cuando se despliegue la tienda_
 
-Currently, two official plugins are available:
+Proyecto del bloque React del Bootcamp Frontend & React (Tecsup): React 19 + TypeScript + Vite + Tailwind 4,
+con `react-router-dom`, Context, hooks propios, sesion con JWT y arquitectura en capas.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Como correrlo
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cp .env.example .env     # y ajusta los valores (el .env no se sube a GitHub)
+npm install
+npm run dev              # servidor de desarrollo
+npm run build            # tsc -b && vite build: debe terminar sin errores
+npm run lint             # oxlint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Variables de entorno
+
+Vite solo deja pasar al navegador las que empiezan con `VITE_` (se leen con `import.meta.env`, siempre desde
+`src/infraestructura/`). En produccion se configuran en Vercel (Settings > Environment Variables) y se redespliega,
+porque se leen al construir, no en vivo.
+
+| Variable             | Para que sirve                                            | Si falta                          |
+| -------------------- | --------------------------------------------------------- | --------------------------------- |
+| `VITE_API_URL`       | Direccion base de la API (DummyJSON: productos y login)   | La tienda usa el catalogo de respaldo |
+| `VITE_NOMBRE_TIENDA` | Nombre en el Header, el Footer y el titulo de la pestana  | Se usa `TecCart`                  |
+
+## Rutas
+
+| Ruta            | Pagina                                   | Acceso           |
+| --------------- | ---------------------------------------- | ---------------- |
+| `/`             | Catalogo con filtros, buscador y favoritos | Publica          |
+| `/producto/:id` | Detalle (carga perezosa, con su silueta) | Publica          |
+| `/login`        | Inicio de sesion con "Recordarme"        | Publica          |
+| `/checkout`     | Formulario de envio controlado           | Requiere sesion  |
+| `/pedidos`      | Mis pedidos (lo guardado por el checkout) | Requiere sesion  |
+| `/practica`     | Contador y cuenta regresiva del laboratorio | Publica          |
+| `*`             | 404 propia                               | Publica          |
+
+## Arquitectura (las flechas apuntan hacia adentro)
+
+```
+src/
+  dominio/          reglas puras: funciones que reciben datos y devuelven datos. Ni React, ni red, ni disco.
+                    ej.: carrito.ts (reducirCarrito), favoritos.ts (alternarFavorito), precios.ts (conIGV)
+  infraestructura/  conecta con la red y el disco; los nombres en ingles de la API solo existen aqui.
+                    ej.: api.ts (adaptador de DummyJSON), auth.ts, almacen.ts (sesion, favoritos, panel), pedidos.ts, config.ts
+  aplicacion/       casos de uso con React: conectan dominio e infraestructura con la UI.
+                    ej.: CarritoContext + useCart, SesionContext + useSesion, FavoritosContext + useFavoritos
+  ui/               lo que se ve; consume la aplicacion y nunca toca el disco directo.
+                    components/ (piezas), pages/ (una por direccion), layout/, formato.ts, useTitulo.ts
+```
+
+Regla de dependencia: las capas de afuera importan del dominio, nunca al reves.
+
+## Sesion
+
+El token se guarda comprobando su forma (`almacen.ts`), se valida contra el servidor con `GET /auth/me`
+(`Authorization: Bearer`) y expira solo con un temporizador. "Recordarme" decide si vive en `localStorage`
+(sobrevive al cierre del navegador) o en `sessionStorage` (muere con la pestana).

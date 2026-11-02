@@ -1,7 +1,8 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import type { Producto } from "../../dominio/tipos";
 import EtiquetaStock from "./EtiquetaStock";
 import Precio from "./Precio";
+import { useFavoritos } from "../../aplicacion/useFavoritos";
 
 interface Props {
   producto : Producto;
@@ -10,14 +11,17 @@ interface Props {
 
 function ProductCard({ producto, onAgregar } : Props) {
   const agotado = producto.stock === 0;
-  // El favorito vive DENTRO de la tarjeta: cada instancia de ProductCard tiene su propio estado
-  // (experimento 3 de la clase 3), así que marcar una no marca las demás.
-  const [favorito, setFavorito] = useState(false);
+  // El favorito YA NO vive dentro de la tarjeta. En la clase 3 era un useState local (cada
+  // instancia con su propia memoria, experimento 3); en la clase 6 sube a FavoritosContext: el
+  // header necesita contarlos, la página de detalle podría marcarlos y deben sobrevivir al F5.
+  // La tarjeta solo pregunta "¿soy favorito?" por id y pide alternar.
+  const { esFavorito, alternar } = useFavoritos();
+  const favorito = esFavorito(producto.id);
   return (
     <article className={`relative w-64 rounded-xl border p-4 ${agotado ? 'opacity-50' : ''}`}>
         <button
           className="absolute right-3 top-3 text-xl leading-none"
-          onClick={() => setFavorito(!favorito)}
+          onClick={() => alternar(producto.id)}
           aria-pressed={favorito}
           aria-label={favorito ? `Quitar ${producto.nombre} de favoritos` : `Marcar ${producto.nombre} como favorito`}
         >

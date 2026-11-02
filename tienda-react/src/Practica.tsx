@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import CuentaRegresiva from './ui/components/CuentaRegresiva';
+import { NOMBRE_TIENDA } from './infraestructura/config';
+import { useTitulo } from './ui/useTitulo';
 
 // Contador tomado del Quick Start de react.dev ("Updating the screen").
 //
@@ -12,17 +15,21 @@ import { useState } from 'react';
 // Es la regla UI = f(datos) en acción: yo cambio el dato con setCount y React repinta solo.
 export default function Practica() {
   const [count, setCount] = useState(0);
+  useTitulo(`Practica - ${NOMBRE_TIENDA}`);
 
   function handleClick() {
     setCount(count + 1);
   }
 
   return (
-    <button
-      onClick={handleClick}
-      className="rounded-lg border px-4 py-2 hover:bg-gray-100"
-    >
-      Clicked {count} times
-    </button>
+    <>
+      <button
+        onClick={handleClick}
+        className="rounded-lg border px-4 py-2 hover:bg-gray-100"
+      >
+        Clicked {count} times
+      </button>
+      <CuentaRegresiva />
+    </>
   );
 }

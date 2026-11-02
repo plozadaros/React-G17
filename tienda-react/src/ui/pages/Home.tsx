@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { NOMBRE_TIENDA, type EstadoCarga, type Producto } from "../../dominio/tipos";
+import { useMemo, useState } from "react";
+import type { EstadoCarga, Producto } from "../../dominio/tipos";
+import { NOMBRE_TIENDA } from "../../infraestructura/config";
+import { useTitulo } from "../useTitulo";
 import Beneficio from "../components/Beneficio";
 import SkeletonCard from "../components/SkeletonCard";
 import ProductCard from "../components/ProductCard";
@@ -35,10 +37,13 @@ interface Props {
   React no mueve las tarjetas, les reescribe el contenido a todas.
 
   Mientras la tarjeta no tiene memoria casi no se nota (solo trabajo de más). El problema llega
-  cuando tiene estado, y ProductCard ya lo tiene: el corazón de favorito (useState dentro de la
-  tarjeta). Ese estado se queda pegado a la POSICIÓN y no al producto: marco el corazón de los
-  Audífonos, filtro por "relojes", y el corazón aparece marcado en el Reloj. Lo mismo con un input
-  o el foco. Lo peor es que no hay error ni advertencia; la pantalla simplemente miente.
+  cuando tiene estado propio. En la clase 3 el corazón de favorito era un useState dentro de la
+  tarjeta, y ahí se veía: ese estado se queda pegado a la POSICIÓN y no al producto: marco el
+  corazón de los Audífonos, filtro por "relojes", y el corazón aparece marcado en el Reloj. Lo
+  mismo con un input o el foco. Lo peor es que no hay error ni advertencia; la pantalla
+  simplemente miente. (Hoy el favorito vive en FavoritosContext, guardado por id del producto,
+  así que ese caso concreto ya no puede fallar; la regla sigue valiendo para cualquier estado
+  local de la tarjeta.)
 
   Por eso la regla: la key es el id del dato (estable y único, nace con el dato, no se inventa al
   pintar ni con Math.random). El índice solo sería aceptable en una lista que nunca se filtra, se
@@ -60,9 +65,17 @@ export function Home ( {esRespaldo, OnReintentar, productos, estado} : Props) {
         (busqueda === '' || p.nombre.toLowerCase().includes(busqueda) || 
         p.marca.toLowerCase().includes(busqueda))
     )), [productos, categoriaActiva, busqueda]);
-    useEffect(() => {
-        document.title = `${NOMBRE_TIENDA} - ${visibles.length} resultados`;
-    },[visibles.length]);
+    // Clase 4, ejercicio 2: el título COMPLETO de la pestaña dice dónde estoy (categoría), qué
+    // busqué y cuántos resultados hay. Es un derivado: se arma en el render con lo que ya sé, sin
+    // estado propio. useTitulo lo publica con un efecto cuya única dependencia es el propio texto,
+    // así que ninguna pieza del título (categoría, búsqueda, cantidad) queda "congelada".
+    const titulo = [
+        NOMBRE_TIENDA,
+        categoriaActiva === 'todas' ? 'Catalogo' : categoriaActiva,
+        ...(busqueda !== '' ? [`"${busqueda}"`] : []),
+        `${visibles.length} resultados`
+    ].join(' - ');
+    useTitulo(titulo);
 
     return (
         <>
